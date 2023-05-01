@@ -30,11 +30,13 @@ console.log('örnek görev:', ilkiniDon(['as','sa'],function(metin){return metin
   Aşağıdaki skor1 ve skor2 kodlarını inceleyiniz ve aşağıdaki soruları altına not alarak cevaplayın
   
   1. skor1 ve skor2 arasındaki fark nedir?
-  
+  // skor1 bir closure kullanarak skor değişkenini saklar ve sadece içerisinde tanımlı olan fonksiyonlar tarafından erişilebilir. skor2 ise global değişken olarak tanımlanır ve herhangi bir fonksiyon tarafından erişilebilir.
   2. Hangisi bir closure kullanmaktadır? Nasıl tarif edebilirsin? (yarınki derste öğreneceksin :) )
-  
+  //skor1 closure kullanır,skorArtirici fonksiyonu ile closure oluşturur.
   3. Hangi durumda skor1 tercih edilebilir? Hangi durumda skor2 daha mantıklıdır?
-*/
+  //skor1 değişkeninin sadece skorArtirici ile güncellenmesi gerektiği durumlarda, dış müdahale edilmemesi gereken gizlilik durumunda kullanılır,skor2 ise basit skor tutma işlemi için kullanılabilir.
+  */
+
 
 // skor1 kodları
 function skorArtirici() {
@@ -64,11 +66,10 @@ Aşağıdaki takimSkoru() fonksiyonununda aşağıdakileri yapınız:
 Not: Bu fonskiyon, aşağıdaki diğer görevler için de bir callback fonksiyonu olarak da kullanılacak
 */
 
-function takimSkoru(/*Kodunuzu buraya yazınız*/){
-    /*Kodunuzu buraya yazınız*/
+function takimSkoru(){
+  return Math.floor(Math.random() * 16) + 10;
 }
-
-
+//console.log(takimSkoru())
 
 
 /* Görev 3: macSonucu() 
@@ -86,13 +87,24 @@ Aşağıdaki macSonucu() fonksiyonununda aşağıdakileri yapınız:
 }
 */ 
 
-function macSonucu(/*Kodunuzu buraya yazınız*/){
-  /*Kodunuzu buraya yazınız*/
+function macSonucu(takimSkoru, ceyrekSayisi){
+  let EvSahibi=0;
+  let KonukTakim=0;
+  for(let i=0; i<ceyrekSayisi; i++){
+    const EvSahibiCeyrek = takimSkoru();
+    const KonukTakimCeyrek = takimSkoru();
+    EvSahibi+= EvSahibiCeyrek;
+    KonukTakim+= KonukTakimCeyrek;
+    //console.log(`Çeyrek ${i+1} skoru: Ev Sahibi ${EvSahibiCeyrek} - Konuk Takım ${KonukTakimCeyrek}`);
+  }
+  const macSonucuObj = {
+    "EvSahibi": EvSahibi,
+    "KonukTakim": KonukTakim
+  };
+  return macSonucuObj;
 }
-
-
-
-
+const sonuc = macSonucu(takimSkoru, 4);
+//console.log(`Maç Sonucu: Ev Sahibi ${sonuc.EvSahibi} - Konuk Takım ${sonuc.KonukTakim}`);
 
 
 /* Zorlayıcı Görev 4: periyotSkoru()
@@ -109,10 +121,17 @@ Aşağıdaki periyotSkoru() fonksiyonununda aşağıdakileri yapınız:
   */
 
 
-function periyotSkoru(/*Kodunuzu buraya yazınız*/) {
-  /*Kodunuzu buraya yazınız*/
-
+function periyotSkoru(takimSkoru) {
+  const EvSahibiSkor = takimSkoru();
+  const KonukTakimSkor = takimSkoru();
+  const periyotSkoruObj = {
+    "EvSahibi": EvSahibiSkor,
+    "KonukTakim": KonukTakimSkor
+  };
+  return periyotSkoruObj;
 }
+const sonuc1 = periyotSkoru(takimSkoru);
+//console.log(sonuc1);
 
 
 /* Zorlayıcı Görev 5: skorTabelasi() 
@@ -146,10 +165,36 @@ MAÇ UZAR ise skorTabelasi(periyotSkoru,takimSkoru,4)
 ] */
 // NOTE: Bununla ilgili bir test yoktur. Eğer logladığınız sonuçlar yukarıdakine benziyor ise tmamlandı sayabilirsiniz.
 
-function skorTabelasi(/*Kodunuzu buraya yazınız*/) {
-  /*Kodunuzu buraya yazınız*/
-}
+function skorTabelasi(periyotSkoru, takimSkoru, ceyrekSayisi) {
+  let evSahibiSkor = takimSkoru.evSahibi;
+  let konukTakimSkor = takimSkoru.konukTakim;
+  let skorlar = [];
 
+  for (let i = 1; i <= ceyrekSayisi; i++) {
+    let evSahibiPeriyotSkoru = periyotSkoru.evSahibi[i-1];
+    let konukTakimPeriyotSkoru = periyotSkoru.konukTakim[i-1];
+    skorlar.push(`${i}. Periyot: Ev Sahibi ${evSahibiPeriyotSkoru} - Konuk Takım ${konukTakimPeriyotSkoru}`);
+
+    evSahibiSkor += evSahibiPeriyotSkoru;
+    konukTakimSkor += konukTakimPeriyotSkoru;
+  }
+
+  if (evSahibiSkor === konukTakimSkor) {
+    let uzatmaSayisi = 1;
+    while (evSahibiSkor === konukTakimSkor) {
+      let uzatmaEvSahibiSkoru = Math.floor(Math.random() * 15) + 5;
+      let uzatmaKonukTakimSkoru = Math.floor(Math.random() * 15) + 5;
+      skorlar.push(`Uzatma ${uzatmaSayisi}: Ev Sahibi ${uzatmaEvSahibiSkoru} - Konuk Takım ${uzatmaKonukTakimSkoru}`);
+      evSahibiSkor += uzatmaEvSahibiSkoru;
+      konukTakimSkor += uzatmaKonukTakimSkoru;
+      uzatmaSayisi++;
+    }
+  }
+
+  skorlar.push(`Maç Sonucu: Ev Sahibi ${evSahibiSkor} - Konuk Takım ${konukTakimSkor}`);
+
+  return skorlar;
+}
 
 
 
